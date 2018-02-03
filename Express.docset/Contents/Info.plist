@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>express-ja</string>
+	<key>CFBundleName</key>
+	<string>Express 4x-ja</string>
+	<key>DocSetPlatformFamily</key>
+	<string>express</string>
+	<key>isDashDocset</key>
+	<true/>
+	<key>dashIndexFilePath</key>
+	<string>ja/4x/api.html</string>
+</dict>
+</plist>
