@@ -1,4 +1,13 @@
 <?php
+/**
+dash-express-ja
+
+Copyright (c) 2018 T.Takamatsu <takamatsu@tactical.jp>
+
+This software is released under the MIT License.
+http://opensource.org/licenses/mit-license.php
+*/
+
 
 //----------------------------------------
 // Config
