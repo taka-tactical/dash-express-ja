@@ -20,15 +20,15 @@ $cfg_nosans = true;
 //----------------------------------------
 
 // get manual html
-exec("rm -rf Express.docset/Contents/Resources/");
-//exec("mkdir -p Express.docset/Contents/Resources/");
-mkdir("Express.docset/Contents/Resources/", 0777, true);
+exec('rm -rf Express.docset/Contents/Resources/');
+//exec('mkdir -p Express.docset/Contents/Resources/');
+mkdir('Express.docset/Contents/Resources/', 0777, true);
 exec("wget -rk http://expressjs.com/{$cfg_lang}/index.html --execute robots=off --include-directories=/{$cfg_lang},/css,/js,/fonts,/images");
-exec("mv " . __DIR__ . "/expressjs.com " . __DIR__ . "/Express.docset/Contents/Resources/Documents/");
-//exec("rm -rf " . __DIR__ . "/expressjs.com/");
+exec('mv ' . __DIR__ . '/expressjs.com ' . __DIR__ . '/Express.docset/Contents/Resources/Documents/');
+//exec('rm -rf ' . __DIR__ . '/expressjs.com/');
 
 // gen Info.plist
-file_put_contents(__DIR__ . "/Express.docset/Contents/Info.plist", <<<ENDE
+file_put_contents(__DIR__ . '/Express.docset/Contents/Info.plist', <<<ENDE
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -47,7 +47,7 @@ file_put_contents(__DIR__ . "/Express.docset/Contents/Info.plist", <<<ENDE
 </plist>
 ENDE
 );
-copy(__DIR__ . "/icon.png", __DIR__ . "/Express.docset/icon.png");
+copy(__DIR__ . '/icon.png', __DIR__ . '/Express.docset/icon.png');
 
 // gen docset
 if (!$html = file_get_contents(__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/index.html")) {
@@ -58,15 +58,16 @@ if (!$html = file_get_contents(__DIR__ . "/Express.docset/Contents/Resources/Doc
 $dom  = new DomDocument;
 @$dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
 
-$db = new sqlite3(__DIR__ . "/Express.docset/Contents/Resources/docSet.dsidx");
-$db->query("CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)");
-$db->query("CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)");
+$db = new sqlite3(__DIR__ . '/Express.docset/Contents/Resources/docSet.dsidx');
+$db->query('CREATE TABLE searchIndex(id INTEGER PRIMARY KEY, name TEXT, type TEXT, path TEXT)');
+$db->query('CREATE UNIQUE INDEX anchor ON searchIndex (name, type, path)');
 
 // remove google open sans font
 if ($cfg_nosans) {
 	$html = remove_googlefonts($html);
 }
 
+// remove garbages
 file_put_contents(
 	__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/index.html",
 	remove_githubfooter(remove_headerlinks(remove_noticebox($html)))
@@ -77,21 +78,21 @@ file_put_contents(
 echo "\nCreate search indexes ...\n\n";
 $edited = [];
 
-foreach ($dom->getElementsByTagName("a") as $a) {
+foreach ($dom->getElementsByTagName('a') as $a) {
 	// need 'li > a' nodes
-	if (!$a->parentNode || $a->parentNode->tagName != "li") {
+	if (!$a->parentNode || $a->parentNode->tagName != 'li') {
 		continue;
 	}
 
 	// check link
-	$href = $a->getAttribute("href");
+	$href = $a->getAttribute('href');
 	$str  = substr($href, 0, 6);
 
 	if ($str == 'https:' || !strncmp($str, 'http:', 5)) {
 		continue;
 	}
 
-	$file = "{$cfg_lang}/" . preg_replace("/#.*$/", "", $href);
+	$file = "{$cfg_lang}/" . preg_replace('/#.*$/', '', $href);
 
 	if (!isset($edited[$file]) && $file != "{$cfg_lang}/index.html") {
 		$html = file_get_contents(__DIR__ . "/Express.docset/Contents/Resources/Documents/{$file}");
@@ -112,8 +113,8 @@ foreach ($dom->getElementsByTagName("a") as $a) {
 	}
 
 	// no chapters in toc
-	//$name = trim(preg_replace("#\s+#u", ' ', preg_replace("#^[A-Z0-9-]+\.#u", '', $a->nodeValue)));
-	$name = trim(preg_replace("#\s+#u", ' ', $a->nodeValue));
+	//$name = trim(preg_replace('#\s+#u', ' ', preg_replace('#^[A-Z0-9-]+\.#u', '', $a->nodeValue)));
+	$name = trim(preg_replace('#\s+#u', ' ', $a->nodeValue));
 
 	if (empty($name)) {
 		continue;
@@ -122,6 +123,23 @@ foreach ($dom->getElementsByTagName("a") as $a) {
 
 	echo "{$name}\n";
 }
+
+
+// adjust another 'api.html' file
+if ($html = file_get_contents(__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/api.html")) {
+
+	// remove google open sans font
+	if ($cfg_nosans) {
+		$html = remove_googlefonts($html);
+	}
+
+	// remove garbages
+	file_put_contents(
+		__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/api.html",
+		remove_githubfooter(remove_headerlinks(remove_noticebox($html)))
+	);
+}
+
 
 // add classes from the API reference
 $file    = "{$cfg_lang}/{$cfg_ver}";
@@ -139,6 +157,7 @@ foreach ($results as $val) {
 	$db->query("INSERT OR IGNORE INTO searchIndex(name, type, path) VALUES (\"{$val[2]}\",\"Class\",\"{$file}/{$val[1]}\")");
 	echo "Added Class '{$val[2]}'\n";
 }
+
 
 // add properties/methods/events from the API reference
 $results = [];
@@ -245,7 +264,7 @@ function remove_githubfooter($html) {
 function remove_googlefonts($html) {
 	if ($html) {
 		$html = preg_replace(
-			'#\s+<link href=\'http(s)?://fonts.googleapis.com/css\?family=Open\+Sans:.+>#i',
+			'#^<link( rel="stylesheet")? href=("|\')http(s)?://fonts.googleapis.com/css\?family=Open\+Sans:.+>\r?\n?$#mu',
 			'',
 			$html
 		);
