@@ -306,7 +306,7 @@ function replace_internallinks($html) {
 			'advanced/',
 			'guide/',
 			'resources/',
-			'starter',
+			'starter/',
 		],
 	];
 
