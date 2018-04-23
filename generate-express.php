@@ -79,7 +79,7 @@ if ($cfg_nosans) {
 // remove garbages
 file_put_contents(
 	__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/index.html",
-	remove_githubfooter(remove_headerlinks(remove_noticebox($html)))
+	replace_internallinks(remove_githubfooter(remove_headerlinks(remove_noticebox($html))))
 );
 
 
@@ -112,7 +112,7 @@ foreach ($dom->getElementsByTagName('a') as $a) {
 		}
 
 		// remove garbages
-		$html = remove_githubfooter(remove_headerlinks(remove_noticebox($html)));
+		$html = replace_internallinks(remove_githubfooter(remove_headerlinks(remove_noticebox($html))));
 
 		file_put_contents(
 			__DIR__ . "/Express.docset/Contents/Resources/Documents/{$file}",
@@ -145,7 +145,7 @@ if ($html = file_get_contents(__DIR__ . "/Express.docset/Contents/Resources/Docu
 	// remove garbages
 	file_put_contents(
 		__DIR__ . "/Express.docset/Contents/Resources/Documents/{$cfg_lang}/api.html",
-		remove_githubfooter(remove_headerlinks(remove_noticebox($html)))
+		replace_internallinks(remove_githubfooter(remove_headerlinks(remove_noticebox($html))))
 	);
 }
 
@@ -280,6 +280,37 @@ function remove_googlefonts($html) {
 	}
 
 	return $html;
+}
+
+// replace|adjust internal links
+function replace_internallinks($html) {
+	// replace
+	$target = [
+		'search'  => [
+			'http://expressjs.com/en/4x/',
+			'http://expressjs.com/ja/4x/',
+			'http://expressjs.com/en/',
+			'http://expressjs.com/ja/',
+			'http://expressjs.com/4x/',
+			'http://expressjs.com/advanced/',
+			'http://expressjs.com/guide/',
+			'http://expressjs.com/resources/',
+			'http://expressjs.com/starter/',
+		],
+		'replace' => [
+			'',
+			'',
+			'',
+			'',
+			'',
+			'advanced/',
+			'guide/',
+			'resources/',
+			'starter',
+		],
+	];
+
+	return str_replace($target['search'], $target['replace'], $html);
 }
 
 
